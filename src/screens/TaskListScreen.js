@@ -1,21 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, ActivityIndicator } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, ActivityIndicator, Button } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { globalStyles } from '../../styles';
 import api from '../../api';
 import TaskList from '../components/TaskList';
+import useTaskStore from '../../store';
 
 const TaskListScreen = ({ navigation }) => {
-  const [tasks, setTasks] = useState([]);
+  const { tasks, setTasks, addTask } = useTaskStore();
+ // const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchTasks();
-  }, []);
 
   const fetchTasks = async () => {
     try {
       const response = await api.get('/tasks');
       setTasks(response.data);
+      setLoading(false);
     } catch (error) {
       console.error('Erro ao buscar tarefas:', error);
     } finally {
@@ -59,6 +59,16 @@ const TaskListScreen = ({ navigation }) => {
     }
   };
 
+  useFocusEffect(
+    React.useCallback(() => {
+      const unsubscribe = navigation.addListener('focus', () => {
+        fetchTasks();
+      });
+
+      return unsubscribe;
+    }, [navigation])
+  );
+
   if (loading) {
     return (
       <View style={globalStyles.container}>
@@ -69,11 +79,22 @@ const TaskListScreen = ({ navigation }) => {
 
   return (
     <View style={globalStyles.container}>
-      <TaskList
-        tasks={tasks}
-        onDelete={handleDeleteTask}
-        onEdit={handleEditTask}
-        onMove={handleMoveTask}
+      {loading ? (
+        <ActivityIndicator size="large" />
+      ) : tasks.length === 0 ? (
+        <Text>Nenhuma tarefa encontrada.</Text>
+      ) : (
+        <TaskList
+          tasks={tasks}
+          onDelete={handleDeleteTask}
+          onEdit={handleEditTask}
+          onMove={handleMoveTask}
+        />
+      )}
+
+      <Button
+        title="Criar Tarefa"
+        onPress={() => navigation.navigate('Criar Tarefa')}
       />
     </View>
   );

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Button, TextInput } from 'react-native';
+import { View, Button, TextInput , Text} from 'react-native';
 import { Formik } from 'formik';
 import * as yup from 'yup';
 
@@ -16,10 +16,7 @@ const taskSchema = yup.object({
     .max(128, 'A descrição pode ter no máximo 128 caracteres'),
   step: yup
     .string()
-    .matches(
-      /Para Fazer|Em Andamento|Pronto/,
-      'Os passos devem ser "Para Fazer", "Em Andamento" ou "Pronto"'
-    ),
+    .oneOf(['Para fazer', 'Em andamento', 'Pronto'], 'Valor inválido para "step".'),
 });
 
 const TaskForm = ({ initialValues, onSubmit }) => {
@@ -27,7 +24,10 @@ const TaskForm = ({ initialValues, onSubmit }) => {
     <Formik
       initialValues={initialValues}
       validationSchema={taskSchema}
-      onSubmit={onSubmit}
+      onSubmit={(values) => {
+        console.log("handleSubmit no TaskForm chamado!", values);
+        onSubmit(values);
+      }}
     >
       {({ handleChange, handleSubmit, values, errors, touched }) => (
         <View>

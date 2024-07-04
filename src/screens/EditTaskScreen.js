@@ -3,11 +3,13 @@ import { View, ActivityIndicator } from 'react-native';
 import { globalStyles } from '../../styles';
 import api from '../../api';
 import TaskForm from '../components/TaskForm';
+import useTaskStore from '../../store';
 
 const EditTaskScreen = ({ route, navigation }) => {
   const { id } = route.params;
   const [task, setTask] = useState(null);
   const [loading, setLoading] = useState(true);
+  const updateTask = useTaskStore((state) => state.updateTask);
 
   useEffect(() => {
     fetchTask();
@@ -26,7 +28,8 @@ const EditTaskScreen = ({ route, navigation }) => {
 
   const handleSubmit = async (values) => {
     try {
-      await api.put(`/tasks/${id}`, values);
+      const response = await api.put(`/tasks/${id}`, values);
+      updateTask(response.data); 
       navigation.goBack();
     } catch (error) {
       console.error('Erro ao editar tarefa:', error);
