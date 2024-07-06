@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, ActivityIndicator } from 'react-native';
-import { globalStyles } from '../../styles';
+import { View, ActivityIndicator, Button, StyleSheet } from 'react-native';
+import { globalStyles, colors} from '../../styles';
 import api from '../../api';
 import TaskForm from '../components/TaskForm';
 import useTaskStore from '../../store';
@@ -46,11 +46,45 @@ const EditTaskScreen = ({ route, navigation }) => {
 
   return (
     <View style={globalStyles.container}>
+      
       {task && (
         <TaskForm initialValues={task} onSubmit={handleSubmit} />
       )}
+
+       <Button style={globalStyles.Button} title="Excluir" onPress={() => onDelete(task.id)} color={colors.red} />
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    padding: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  input: {
+    height: 40,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    padding: 10,
+    marginBottom: 10,
+  },
+  pickerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  label: {
+    marginRight: 10,
+  },
+  picker: {
+    height: 40,
+    width: '100%',
+  }
+});
+
 
 export default EditTaskScreen;

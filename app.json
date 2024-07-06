@@ -1,6 +1,7 @@
 {
   "expo": {
     "name": "lista_tarefas_at",
+    "owner": "luislipefsantos",
     "slug": "lista_tarefas_at",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -18,10 +19,16 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.luislipefsantos.lista_tarefas_at"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "6d995573-e825-4207-b38e-05aa0f54fb69"
+      }
     }
   }
 }
