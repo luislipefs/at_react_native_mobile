@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Button, TextInput, Text, StyleSheet } from 'react-native';
+import { View, Button, TextInput, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import {Picker} from '@react-native-picker/picker';
 import { globalStyles, colors } from '../../styles';
 import { Formik } from 'formik';
@@ -46,7 +46,7 @@ const TaskForm = ({ initialValues, onSubmit }) => {
 
           <Text style={styles.label}>Descrição:</Text>
           <TextInput
-            style={styles.input}
+            style={styles.inputDescription}
             placeholder="Descrição"
             value={values.description}
             onChangeText={handleChange('description')}
@@ -67,7 +67,9 @@ const TaskForm = ({ initialValues, onSubmit }) => {
             <Picker.Item style={styles.picker} color="#17bd17" label="Pronto" value="Pronto" />
           </Picker>
           </View>
-          <Button title="Salvar" onPress={handleSubmit} style={styles.button}/>
+          <TouchableOpacity style={styles.saveButton}  hitSlop={{ top: 20, bottom: 20, left: 25, right: 25 }} onPress={handleSubmit}>
+          <Text style={styles.saveButtonText}>Salvar</Text>
+          </TouchableOpacity>
         </View>
       )}
     </Formik>
@@ -75,6 +77,21 @@ const TaskForm = ({ initialValues, onSubmit }) => {
 };
 
 const styles = StyleSheet.create({
+  saveButtonText:{
+    textAlign: "center",
+    marginTop: 25,
+    color: "white",
+    fontWeight: "bold",
+    fontSize: 25
+  },
+  saveButton:{
+    marginTop:10,
+    backgroundColor: "#2196F3",
+    borderRadius: 20,
+    width: "70%",
+    height: "18%",
+    alignSelf: "center"
+  },
   container: {
     padding: 10,
   },
@@ -85,7 +102,17 @@ const styles = StyleSheet.create({
   },
   input: {
     fontSize: 20,
-    height: 40,
+    height: 50,
+    borderRadius: 20,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    padding: 10,
+    marginBottom: 2,
+  },
+  inputDescription: {
+    fontSize: 20,
+    height: 180,
+    borderRadius: 20,
     borderColor: '#ccc',
     borderWidth: 1,
     padding: 10,

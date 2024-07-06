@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, ActivityIndicator, Button, StyleSheet } from 'react-native';
+import { View, Text, ActivityIndicator, Button, StyleSheet, TouchableOpacity } from 'react-native';
 import { globalStyles, colors} from '../../styles';
 import api from '../../api';
 import TaskForm from '../components/TaskForm';
 import useTaskStore from '../../store';
+import handleDeleteTask from '../screens/TaskListScreen'
 
-const EditTaskScreen = ({ route, navigation }) => {
-  const { id } = route.params;
+const EditTaskScreen = ({ route, navigation}) => {
+  const { id, onDelete } = route.params;
   const [task, setTask] = useState(null);
   const [loading, setLoading] = useState(true);
   const updateTask = useTaskStore((state) => state.updateTask);
@@ -50,13 +51,29 @@ const EditTaskScreen = ({ route, navigation }) => {
       {task && (
         <TaskForm initialValues={task} onSubmit={handleSubmit} />
       )}
-
-       <Button style={globalStyles.Button} title="Excluir" onPress={() => onDelete(task.id)} color={colors.red} />
+        <TouchableOpacity style={styles.deleteButton}  hitSlop={{ top: 20, bottom: 20, left: 25, right: 25 }} onPress={() => onDelete(task.id)}>
+              <Text style={styles.deleteButtonText}>Excluir</Text>
+        </TouchableOpacity>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  deleteButtonText:{
+    textAlign: "center",
+    marginTop: 16,
+    color: "white",
+    fontWeight: "bold",
+    fontSize: 25
+    },
+  deleteButton:{
+    marginTop: -5,
+    backgroundColor: "red",
+    borderRadius: 20,
+    width: "40%",
+    height: "10%",
+    alignSelf: "center"
+    },
   container: {
     padding: 20,
   },

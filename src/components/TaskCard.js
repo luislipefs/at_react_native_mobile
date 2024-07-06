@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Button, TouchableOpacity, StyleSheet } from 'react-native';
 import {Picker} from '@react-native-picker/picker';
 import { globalStyles, colors } from '../../styles';
@@ -7,21 +7,9 @@ import UpdateStepModal from './UpdateStepModal';
 const TaskCard = ({ task, onDelete, onEdit, onUpdateStep }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedStep, setSelectedStep] = useState(task.step);
-  
-  const handlePreviousStep = () => {
-    const steps = ['Para fazer', 'Em andamento', 'Pronto'];
-    const currentIndex = steps.indexOf(task.step);
-    const newIndex = (currentIndex - 1 + steps.length) % steps.length;
-    onUpdateStep(task.id, steps[newIndex]); // Passe o ID da tarefa e o novo estado
-  };
-  
-  const handleNextStep = () => {
-    const steps = ['Para fazer', 'Em andamento', 'Pronto'];
-    const currentIndex = steps.indexOf(task.step);
-    const newIndex = (currentIndex + 1) % steps.length;
-    onUpdateStep(task.id, steps[newIndex]); // Passe o ID da tarefa e o novo estado
-  };
+  const [currentStep, setCurrentStep] = useState(task.step);
 
+  
   const handleOpenModal = () => {
     setIsModalVisible(true);
   };
@@ -40,6 +28,41 @@ const TaskCard = ({ task, onDelete, onEdit, onUpdateStep }) => {
     onUpdateStep(task.id, itemValue);
   };
 
+  
+  const handlePreviousStep = async () => {
+    const steps = ['Para fazer', 'Em andamento', 'Pronto'];
+    const currentIndex = steps.indexOf(currentStep);
+    const newIndex = (currentIndex - 1 + steps.length) % steps.length;
+    const newStep = steps[newIndex];
+
+    try {
+      await onUpdateStep(task.id, { step: newStep }); // Correção: adicione { step: newStep }
+      setCurrentStep(newStep);
+      console.log(task.id);
+      console.log(newStep);
+    } catch (error) {
+      console.error('Erro ao atualizar o estado da tarefa:', error);
+      console.error('Resposta da API (erro):', error.response);
+    }
+  };
+
+  const handleNextStep = async () => {
+    const steps = ['Para fazer', 'Em andamento', 'Pronto'];
+    const currentIndex = steps.indexOf(currentStep);
+    const newIndex = (currentIndex + 1) % steps.length;
+    const newStep = steps[newIndex];
+
+    try {
+      await onUpdateStep(task.id, { step: newStep }); // Correção: adicione { step: newStep }
+      setCurrentStep(newStep);
+      console.log(task.id);
+      console.log(newStep);
+    } catch (error) {
+      console.error('Erro ao atualizar o estado da tarefa:', error);
+      console.error('Resposta da API (erro):', error.response);
+    }
+  };
+  
   const getColorByStep = (step) => {
     switch (step) {
       case 'Para fazer':
@@ -52,6 +75,9 @@ const TaskCard = ({ task, onDelete, onEdit, onUpdateStep }) => {
         return 'gray';
     }
   };
+  
+  console.log(task.step);
+  console.log(task.id);
 
   return (
     <TouchableOpacity 
@@ -61,22 +87,16 @@ const TaskCard = ({ task, onDelete, onEdit, onUpdateStep }) => {
       <View> 
         <Text style={styles.title}>{task.title}</Text>
         <Text style={styles.description}>{task.description}</Text>
-        <View style={styles.stepContainer}>
-          <TouchableOpacity 
-            onPress={handlePreviousStep} 
-            style={styles.arrowButton} 
-            hitSlop={{ top: 10, bottom: 10, left: 15, right: 15 }} // Área de toque maior
-          >
-            <Text style={styles.arrowButtonText}>{'<'}</Text> 
-          </TouchableOpacity>
-          <Text style={styles.stepText}>{task.step}</Text>
-          <TouchableOpacity 
-            onPress={handleNextStep} 
-            style={styles.arrowButton} 
-            hitSlop={{ top: 10, bottom: 10, left: 15, right: 15 }} // Área de toque maior
-          >
-            <Text style={styles.arrowButtonText}>{'>'}</Text>
-          </TouchableOpacity>
+        <Text style={styles.stepLine}>─────────────────────</Text>
+
+        <TouchableOpacity onPress={() => onEdit(task.id)}  style={styles.stepButton}> 
+        <Text style={styles.stepText}>👉 {task.step}</Text>
+        </TouchableOpacity>
+
+        <View style={styles.buttons}>
+        <TouchableOpacity style={styles.deleteButton}  hitSlop={{ top: 20, bottom: 20, left: 25, right: 25 }} onPress={onDelete}>
+        <Text style={styles.deleteButtonText}>Excluir</Text>
+        </TouchableOpacity>
         </View>
       </View>
     </TouchableOpacity>
@@ -84,6 +104,30 @@ const TaskCard = ({ task, onDelete, onEdit, onUpdateStep }) => {
 };
 
 const styles = StyleSheet.create({
+  stepLine: {
+    color: "white",
+    fontWeight: "bold"
+  },  
+  stepText: {
+    fontSize: 20,
+    color: "white", // Cor do texto do estado da tarefa
+    textShadowColor: '#000',
+    textShadowRadius: 2,
+    fontWeight: "900"
+  },
+  deleteButtonText:{
+    textAlign: "center",
+    color: "white",
+    fontWeight: "bold",
+    fontSize: 20
+  },
+  deleteButton:{
+    backgroundColor: "red",
+    borderRadius: 20,
+    width: "40%",
+    marginLeft: 190,
+    marginBottom: -10
+  },
   title: {
     fontSize: 22,
     fontWeight: 'bold',
@@ -115,12 +159,6 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
-  },
-  stepText: {
-    fontSize: 20,
-    color: "white", // Cor do texto do estado da tarefa
-    textShadowColor: '#000',
-    textShadowRadius: 2
   },
   arrowButtonText: {
     color: 'black',
