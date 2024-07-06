@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, ActivityIndicator, Button } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useRoute } from '@react-navigation/native';
 import { globalStyles } from '../../styles';
 import api from '../../api';
 import TaskList from '../components/TaskList';
@@ -8,18 +8,40 @@ import useTaskStore from '../../store';
 
 const TaskListScreen = ({ navigation }) => {
   const { tasks, setTasks, addTask } = useTaskStore();
- // const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
+  const route = useRoute();
 
   const fetchTasks = async () => {
+    setLoading(true); // Inicia o loading antes de buscar os dados
     try {
       const response = await api.get('/tasks');
       setTasks(response.data);
-      setLoading(false);
     } catch (error) {
       console.error('Erro ao buscar tarefas:', error);
     } finally {
-      setLoading(false);
+      setLoading(false); // Finaliza o loading após buscar os dados
+    }
+  };
+
+  const filteredTasks = (() => {
+    switch (route.name) { // Filtra as tarefas com base no nome da aba
+      case 'Para Fazer':
+        return tasks.filter((task) => task.step === 'Para Fazer');
+      case 'Em Andamento':
+        return tasks.filter((task) => task.step === 'Em Andamento');
+      case 'Pronto':
+        return tasks.filter((task) => task.step === 'Pronto');
+      default:
+        return tasks;
+    }
+  })();
+
+  const handleUpdateTaskStep = async (taskId, newStep) => {
+    try {
+      await api.patch(`/tasks/${taskId}/update-step`, { step: newStep });
+      fetchTasks();
+    } catch (error) {
+      console.error('Erro ao atualizar o estado da tarefa:', error);
     }
   };
 
@@ -61,12 +83,8 @@ const TaskListScreen = ({ navigation }) => {
 
   useFocusEffect(
     React.useCallback(() => {
-      const unsubscribe = navigation.addListener('focus', () => {
-        fetchTasks();
-      });
-
-      return unsubscribe;
-    }, [navigation])
+      fetchTasks(); 
+    }, [route.name, tasks]) // Adicione 'tasks' aqui!
   );
 
   if (loading) {
@@ -81,14 +99,25 @@ const TaskListScreen = ({ navigation }) => {
     <View style={globalStyles.container}>
       {loading ? (
         <ActivityIndicator size="large" />
-      ) : tasks.length === 0 ? (
-        <Text>Nenhuma tarefa encontrada.</Text>
       ) : (
         <TaskList
-          tasks={tasks}
+          tasks={ // Calcula a filtragem aqui, dentro do return
+            tasks.filter((task) => {
+              switch (route.name) {
+                case 'Para Fazer':
+                  return task.step === 'Para Fazer';
+                case 'Em Andamento':
+                  return task.step === 'Em Andamento';
+                case 'Pronto':
+                  return task.step === 'Pronto';
+                default:
+                  return true; 
+              }
+            })
+          }
           onDelete={handleDeleteTask}
           onEdit={handleEditTask}
-          onMove={handleMoveTask}
+          onUpdateStep={handleUpdateTaskStep} 
         />
       )}
 
